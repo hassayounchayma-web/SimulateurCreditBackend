@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: CreditSimulatorApi
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/credit_simulator_dev?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: ""
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+
+agent:
+  llm:
+    enabled: true
+    provider: gemini
+    gemini:
+      api-key: ${GEMINI_API_KEY:}
+      model: gemini-2.0-flash
+      url: https://generativelanguage.googleapis.com/v1beta/models
+
+server:
+  port: 8081
+
+logging:
+  level:
+    tn.bna.simulateur: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.tool.schema: DEBUG
