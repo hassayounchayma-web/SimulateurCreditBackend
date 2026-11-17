@@ -2,11 +2,13 @@ package tn.bna.simulateur.entities;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
+
 @Data
 public class SimulationSansRachatRequest {
-    @NotNull(message = "Le salaire mensuel moyen est obligatoire")
-    @Positive(message = "Le salaire doit être positif")
-    private double salaireMensuelMoyen;
+
+    @NotNull
+    @Positive
+    private Double salaireMensuelMoyen;
 
     @PositiveOrZero
     private double cinquantePourcentLoyers;
@@ -17,12 +19,12 @@ public class SimulationSansRachatRequest {
     @PositiveOrZero
     private double retenuesCreditsBna;
 
-    @NotBlank(message = "Le type de crédit est obligatoire")
+    @NotBlank
     private String typeCredit;
 
-    @Min(value = 1, message = "La durée doit être d'au moins 1 mois")
+    @Min(1)
     private int dureeMois;
 
     @PositiveOrZero
-    private Double montantDemande; // peut être null
+    private Double montantCreditDemande;
 }

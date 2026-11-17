@@ -31,7 +31,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         for (String publicEndpoint : PUBLIC_ENDPOINTS) {
             if (path.startsWith(publicEndpoint)) {
-                return true; // pas de JWT sur login/register
+                return true;
             }
         }
         return false;
@@ -43,6 +43,8 @@ public class JwtFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
+
+        SecurityContextHolder.clearContext();
 
         String authHeader = request.getHeader("Authorization");
 
@@ -56,6 +58,10 @@ public class JwtFilter extends OncePerRequestFilter {
                     if (role == null || role.isBlank()) {
                         role = "CLIENT";
                     }
+                    role = role.trim().toUpperCase();
+                    if (role.startsWith("ROLE_")) {
+                        role = role.substring(5);
+                    }
 
                     var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
@@ -65,14 +71,12 @@ public class JwtFilter extends OncePerRequestFilter {
                             authorities
                     );
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    System.out.println("✅ [JwtFilter] Auth OK: " + username + " / " + role);
+                    System.out.println("✅ [JwtFilter] Auth OK: " + username + " / ROLE_" + role);
                 } catch (Exception e) {
                     SecurityContextHolder.clearContext();
                     System.out.println("❌ [JwtFilter] Extract error: " + e.getMessage());
                 }
             } else {
-                // Token présent mais invalide → on continue sans auth (routes permitAll OK)
-                SecurityContextHolder.clearContext();
                 System.out.println("❌ [JwtFilter] Token invalide sur " + request.getRequestURI());
             }
         }

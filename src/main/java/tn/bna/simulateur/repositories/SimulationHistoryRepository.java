@@ -7,4 +7,5 @@ import java.util.List;
 public interface SimulationHistoryRepository extends JpaRepository<SimulationHistory, Long> {
     List<SimulationHistory> findByUserIdOrderByCreatedAtDesc(Long userId);
     List<SimulationHistory> findByUserIdAndIdIn(Long userId, List<Long> ids);
+    List<SimulationHistory> findAllByOrderByCreatedAtDesc();
 }

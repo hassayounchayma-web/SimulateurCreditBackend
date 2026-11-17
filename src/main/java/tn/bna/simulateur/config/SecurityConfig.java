@@ -39,9 +39,21 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/simulateur/**").permitAll()   // si tu veux rester public
-                        .requestMatchers("/api/history/**").permitAll()// historique = connecté
-                        .requestMatchers("/api/agent/**").permitAll()        // ou authenticated
+                        .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")  // ← explicite                        // ou hasRole selon ton JWT
+                        .requestMatchers("/api/history/**").authenticated()
+                        .requestMatchers("/api/simulateur/**").permitAll()
+                        // Paramétrage : consultation par les
+                        // utilisateurs authentifiés
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/parametrage",
+                                "/api/parametrage/**"
+                        ).authenticated()
+
+                        // Administration : accès ADMIN uniquement
+                        .requestMatchers(
+                                "/api/admin/**"
+                        ).hasAuthority("ROLE_ADMIN")// ou authenticated selon ton choix
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

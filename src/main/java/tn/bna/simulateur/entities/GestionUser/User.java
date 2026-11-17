@@ -2,6 +2,7 @@ package tn.bna.simulateur.entities.GestionUser;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.ToString;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -20,6 +21,7 @@ public class User {
     @Column(unique = true)
     private String email;
 
+    @ToString.Exclude
     private String password;
 
     private String telephone;

@@ -4,37 +4,27 @@ import lombok.Data;
 
 @Data
 public class SimulationResult {
-
     private Double totalRevenuNetMoyen;
     private Double tauxEndettement;
     private Double gf;
     private Double plafondEndettementMensuel;
-    private Double totalRetenues;
     private Double availableMensualite;
+    private Double reliquatCapaciteEffectif;
     private Double montantMaxCredit;
     private Double mensualite;
-    private Double totalEndettementMensuel;
-    private Double tauxEndettementCalcule;
-
-    // Champs spécifiques Rachat
-    private Double reliquatCapaciteEffectif;
-    private Double mensualiteNouveau;
-    private Double reliquatCreditApresRachat;
-    private Double totalRetenuesApres;
-    private Double totalRetenuesAvant;
-    private Double montantNouveauCredit;
-    private Double tauxEndettementMaxAutorise;
-    private Boolean amelioration;
-
-    // ✅ Nouveau champ pour Crédit H24 / Crédit Perso
     private Integer duree;
-
+    private Double tauxAnnuel;
+    private Double totalEndettementMensuel;
+    private Double totalRetenues;
+    private Double tauxEndettementCalcule;
+    private Double reliquatCreditApresRachat;
+    private String statut;
     private String error;
 
-    // Factory method pour les erreurs
     public static SimulationResult error(String message) {
-        SimulationResult result = new SimulationResult();
-        result.setError(message);
-        return result;
+        SimulationResult r = new SimulationResult();
+        r.setError(message);
+        r.setStatut("HORS_LIMITES");
+        return r;
     }
 }

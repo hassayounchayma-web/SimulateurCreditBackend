@@ -1,0 +1,12 @@
+services:
+  paddle-ocr:
+    build: .
+    container_name: credit-paddle-ocr
+    ports:
+      - "127.0.0.1:8090:8090"
+    volumes:
+      - paddle-models:/root/.paddlex
+    restart: unless-stopped
+
+volumes:
+  paddle-models:

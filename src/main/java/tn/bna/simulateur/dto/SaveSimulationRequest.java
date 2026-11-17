@@ -1,7 +1,6 @@
 package tn.bna.simulateur.dto;
 
 import lombok.Data;
-
 @Data
 public class SaveSimulationRequest {
     private String typeSimulateur;
