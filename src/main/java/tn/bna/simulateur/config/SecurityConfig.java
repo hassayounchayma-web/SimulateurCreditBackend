@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -36,8 +38,17 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
+                // Token absent, expiré ou invalide → 401 (le frontend déconnecte et
+                // renvoie vers /login). Le 403 reste réservé aux accès interdits
+                // (ex. un client sur /api/admin/**).
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // Page d'erreur de Spring : sans cela, un 403 redirigé vers /error
+                        // redevient un 401 (le JWT n'est pas relu lors de ce renvoi).
+                        .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")  // ← explicite                        // ou hasRole selon ton JWT
                         .requestMatchers("/api/history/**").authenticated()
