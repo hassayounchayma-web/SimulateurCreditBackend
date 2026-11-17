@@ -23,6 +23,10 @@ spring:
       max-request-size: 96MB
 
 app:
+  jwt:
+    # Ne jamais écrire la clé ici : la définir dans la variable d'environnement JWT_SECRET
+    # (au moins 32 caractères). Sans elle, une clé aléatoire est générée à chaque démarrage.
+    secret: ${JWT_SECRET:}
   dossier:
     storage-directory: ./data/dossiers
     checklist:

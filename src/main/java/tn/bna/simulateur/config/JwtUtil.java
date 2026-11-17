@@ -3,24 +3,52 @@ package tn.bna.simulateur.config;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+@Slf4j
 @Component
 public class JwtUtil {
 
-    // Au moins 32 caractères (256 bits) pour HS256
-    private static final String SECRET_KEY =
-            "VotreSecretSuperLongEtComplexePourJWT2026Minimum32Caracteres!!!";
+    // HS384 (algorithme choisi par jjwt pour une clé de 48 à 63 octets)
+    // ou HS512 : la clé doit faire au moins 32 octets.
+    private static final int MIN_SECRET_BYTES = 32;
 
     private final long EXPIRATION_TIME = 86400000L * 30L; // ✅ 30 jours
+
+    private final SecretKey signingKey;
+
+    /**
+     * La clé vient de la propriété app.jwt.secret (variable d'environnement JWT_SECRET).
+     * Si elle est absente, une clé aléatoire est générée au démarrage : pratique en
+     * développement, mais tous les tokens deviennent invalides à chaque redémarrage.
+     */
+    public JwtUtil(@Value("${app.jwt.secret:}") String secret) {
+        if (secret == null || secret.isBlank()) {
+            byte[] random = new byte[64];
+            new SecureRandom().nextBytes(random);
+            this.signingKey = Keys.hmacShaKeyFor(random);
+            log.warn("JWT_SECRET non défini : clé JWT aléatoire générée. "
+                    + "Les utilisateurs devront se reconnecter après chaque redémarrage.");
+            return;
+        }
+        byte[] bytes = secret.getBytes(StandardCharsets.UTF_8);
+        if (bytes.length < MIN_SECRET_BYTES) {
+            throw new IllegalStateException(
+                    "JWT_SECRET doit contenir au moins " + MIN_SECRET_BYTES + " octets.");
+        }
+        this.signingKey = Keys.hmacShaKeyFor(bytes);
+    }
+
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+        return signingKey;
     }
 
     public String generateToken(String username, String role) {
